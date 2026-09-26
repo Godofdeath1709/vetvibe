@@ -172,7 +172,24 @@ export function CampusProvider({ children }: { children: React.ReactNode }) {
       if (savedGatepasses) setGatePasses(JSON.parse(savedGatepasses));
 
       const savedNotifications = localStorage.getItem('campusone_notifications');
-      if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
+      if (savedNotifications) {
+        const parsed = JSON.parse(savedNotifications);
+        if (Array.isArray(parsed)) {
+          setNotifications(
+            parsed.map((item: any) => ({
+              ...item,
+              description: item.description || item.message || '',
+              message: item.description || item.message || '',
+              date: item.date || item.timestamp || 'Recent',
+              timestamp: item.date || item.timestamp || 'Recent',
+              read: Boolean(item.read ?? item.isRead ?? false),
+              isRead: Boolean(item.read ?? item.isRead ?? false),
+              type: item.type || item.category || 'announcement',
+              category: item.type || item.category || 'announcement',
+            }))
+          );
+        }
+      }
 
       const savedFeeSummary = localStorage.getItem('campusone_fee_summary');
       if (savedFeeSummary) setFeeSummary(JSON.parse(savedFeeSummary));
@@ -224,14 +241,25 @@ export function CampusProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  const addNotification = (title: string, message: string, category: NotificationItem['category'], linkTab?: string) => {
+  const addNotification = (
+    title: string,
+    description: string,
+    type: NotificationItem['type'] = 'announcement',
+    linkTab?: string
+  ) => {
+    const now = new Date();
+    const dateStr = `${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}, ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
     const newNotice: NotificationItem = {
-      id: `ntf-${Date.now()}`,
+      id: `ntf-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       title,
-      message,
-      timestamp: 'Just now',
+      description,
+      message: description,
+      date: dateStr,
+      timestamp: dateStr,
+      read: false,
       isRead: false,
-      category,
+      type,
+      category: type,
       linkTab,
     };
     setNotifications((prev) => [newNotice, ...prev]);
@@ -576,11 +604,15 @@ export function CampusProvider({ children }: { children: React.ReactNode }) {
 
   // Notifications read/unread
   const markNotificationAsRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true, isRead: true } : n))
+    );
   };
 
   const markAllNotificationsAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, read: true, isRead: true }))
+    );
   };
 
   // Events
@@ -638,7 +670,7 @@ export function CampusProvider({ children }: { children: React.ReactNode }) {
     setActiveTab(serviceKey);
   };
 
-  const unreadNotificationCount = notifications.filter((n) => !n.isRead).length;
+  const unreadNotificationCount = notifications.filter((n) => !(n.read ?? n.isRead)).length;
 
   return (
     <CampusContext.Provider

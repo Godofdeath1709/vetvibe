@@ -185,11 +185,16 @@ export interface CampusNotice {
 export interface NotificationItem {
   id: string;
   title: string;
-  message: string;
-  timestamp: string;
-  isRead: boolean;
-  category: 'complaint' | 'gatepass' | 'academic' | 'fee' | 'announcement';
+  description: string;
+  date: string;
+  read: boolean;
+  type: 'complaint' | 'gatepass' | 'academic' | 'fee' | 'announcement';
   linkTab?: string;
+  // Aliases for full compatibility
+  message?: string;
+  timestamp?: string;
+  isRead?: boolean;
+  category?: 'complaint' | 'gatepass' | 'academic' | 'fee' | 'announcement';
 }
 
 export interface CampusIncident {

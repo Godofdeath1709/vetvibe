@@ -11,6 +11,7 @@ import {
   LogOut,
   ChevronDown,
   Menu,
+  Check,
 } from 'lucide-react';
 
 export default function Header() {
@@ -180,20 +181,23 @@ export default function Header() {
               <HelpCircle className="w-4 h-4" />
             </button>
 
-            {/* Notifications with Circular Badge '2' */}
+            {/* Notifications with Circular Dynamic Badge */}
             <div className="relative" ref={notifRef}>
               <button
+                type="button"
                 onClick={() => {
                   setShowNotifications(!showNotifications);
                   setShowProfileMenu(false);
                 }}
                 className="p-1.5 text-slate-600 hover:text-[#99004d] hover:bg-[#F3F5F7] rounded-[3px] border border-[#D9DEE7] transition relative cursor-pointer"
-                aria-label="View notifications"
+                aria-label={`View notifications (${unreadNotificationCount} unread)`}
               >
                 <Bell className="w-4 h-4 text-[#182033]" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#DC2626] text-white text-[10px] font-bold rounded-full flex items-center justify-center shrink-0 shadow-2xs">
-                  {unreadNotificationCount > 0 ? unreadNotificationCount : 2}
-                </span>
+                {unreadNotificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-[#DC2626] text-white text-[10px] font-bold rounded-full flex items-center justify-center shrink-0 shadow-2xs">
+                    {unreadNotificationCount}
+                  </span>
+                )}
               </button>
 
               {/* Notification Popover */}
@@ -202,39 +206,89 @@ export default function Header() {
                   <div className="p-3 bg-[#F7F5F2] flex justify-between items-center">
                     <div className="font-semibold text-xs text-[#17233C] flex items-center gap-1.5">
                       <Bell className="w-3.5 h-3.5 text-[#99004d]" />
-                      Campus Notifications
+                      <span>Campus Notifications</span>
+                      {unreadNotificationCount > 0 ? (
+                        <span className="ml-1 px-1.5 py-0.2 bg-[#DC2626] text-white text-[9px] font-bold rounded-full">
+                          {unreadNotificationCount} new
+                        </span>
+                      ) : (
+                        <span className="ml-1 px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[9px] font-semibold rounded-[2px]">
+                          All caught up
+                        </span>
+                      )}
                     </div>
-                    <button
-                      onClick={markAllNotificationsAsRead}
-                      className="text-[11px] text-[#99004d] hover:underline font-semibold"
-                    >
-                      Mark all read
-                    </button>
+                    {unreadNotificationCount > 0 ? (
+                      <button
+                        type="button"
+                        onClick={markAllNotificationsAsRead}
+                        className="text-[11px] text-[#99004d] hover:underline font-semibold cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    ) : (
+                      <span className="text-[11px] text-slate-400 font-medium cursor-not-allowed">
+                        Mark all read
+                      </span>
+                    )}
                   </div>
 
                   <div className="max-h-80 overflow-y-auto divide-y divide-[#F3F5F7]">
-                    {notifications.slice(0, 6).map((n) => (
-                      <div
-                        key={n.id}
-                        onClick={() => {
-                          markNotificationAsRead(n.id);
-                          if (n.linkTab) setActiveTab(n.linkTab);
-                          setShowNotifications(false);
-                        }}
-                        className={`p-3 text-xs cursor-pointer transition hover:bg-[#F3F5F7] ${
-                          !n.isRead ? 'bg-[#FDF2F7]/60 font-medium' : 'text-[#667085]'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="font-semibold text-[#182033] flex items-center gap-1">
-                            {!n.isRead && <span className="w-1.5 h-1.5 rounded-full bg-[#99004d]" />}
-                            {n.title}
-                          </span>
-                          <span className="text-[10px] text-[#667085] shrink-0">{n.timestamp}</span>
-                        </div>
-                        <p className="mt-1 text-[#667085] line-clamp-2">{n.message}</p>
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-slate-500">
+                        <Check className="w-6 h-6 text-emerald-500 mx-auto mb-1.5 opacity-80" />
+                        No notifications to display.
                       </div>
-                    ))}
+                    ) : (
+                      notifications.map((n) => {
+                        const isUnread = !(n.read ?? n.isRead);
+                        return (
+                          <div
+                            key={n.id}
+                            onClick={() => {
+                              markNotificationAsRead(n.id);
+                              if (n.linkTab) setActiveTab(n.linkTab);
+                            }}
+                            className={`p-3 text-xs cursor-pointer transition hover:bg-[#F3F5F7] ${
+                              isUnread ? 'bg-[#FDF2F7]/70 font-medium' : 'text-[#667085] bg-white'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <span className={`flex items-center gap-1.5 ${isUnread ? 'font-bold text-[#182033]' : 'font-semibold text-slate-700'}`}>
+                                {isUnread && <span className="w-2 h-2 rounded-full bg-[#99004d] shrink-0" />}
+                                {n.title}
+                              </span>
+                              <span className="text-[10px] text-[#667085] shrink-0 font-normal">
+                                {n.date || n.timestamp}
+                              </span>
+                            </div>
+                            <p className={`mt-1 line-clamp-2 text-[11px] leading-relaxed ${isUnread ? 'text-slate-800' : 'text-[#667085]'}`}>
+                              {n.description || n.message}
+                            </p>
+                            <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                              <span className="uppercase text-[9px] tracking-wider px-1.5 py-0.5 rounded-[2px] bg-slate-100 text-slate-600 font-medium">
+                                {n.type || n.category}
+                              </span>
+                              {isUnread ? (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markNotificationAsRead(n.id);
+                                  }}
+                                  className="text-[#99004d] hover:underline font-semibold text-[10px] cursor-pointer"
+                                >
+                                  Mark read
+                                </button>
+                              ) : (
+                                <span className="text-emerald-700 font-medium flex items-center gap-0.5">
+                                  ✓ Read
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               )}

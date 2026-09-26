@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCampus } from '@/context/CampusContext';
 import {
   User,
@@ -64,6 +65,33 @@ export default function StudentDashboard() {
     activeTab,
     setActiveTab,
   } = useCampus();
+
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Determine current tab from URL pathname
+  useEffect(() => {
+    if (!pathname) return;
+    if (pathname === '/student/dashboard' || pathname === '/student' || pathname === '/student/') {
+      setActiveTab('dashboard');
+    } else {
+      const parts = pathname.split('/').filter(Boolean);
+      // e.g. parts = ['student', 'attendance']
+      const sub = parts[1];
+      if (sub && sub !== 'dashboard') {
+        setActiveTab(sub);
+      }
+    }
+  }, [pathname, setActiveTab]);
+
+  const navigateToTab = (tabId: string) => {
+    setActiveTab(tabId);
+    if (tabId === 'dashboard') {
+      router.push('/student/dashboard');
+    } else {
+      router.push(`/student/${tabId}`);
+    }
+  };
 
   // Exactly 24 Student Services Modules matching Reference Screenshot
   const serviceTiles = [
@@ -234,7 +262,7 @@ export default function StudentDashboard() {
       {isSubSectionActive && (
         <div className="flex items-center space-x-2 text-xs text-slate-600 bg-white p-2.5 rounded-[3px] border border-[#D9DEE7] shadow-2xs">
           <button
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => navigateToTab('dashboard')}
             className="text-[#99004d] hover:underline font-bold flex items-center gap-1 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -373,7 +401,7 @@ export default function StudentDashboard() {
               <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
                 <span className="text-slate-500">5 of 5 Courses Above Threshold</span>
                 <button
-                  onClick={() => setActiveTab('attendance')}
+                  onClick={() => navigateToTab('attendance')}
                   className="font-bold text-[#99004d] hover:underline cursor-pointer"
                 >
                   View Sheet
@@ -398,7 +426,7 @@ export default function StudentDashboard() {
               <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
                 <span className="text-slate-500">1 Wi-Fi Ticket • 1 Gate Pass Req</span>
                 <button
-                  onClick={() => setActiveTab('complaints')}
+                  onClick={() => navigateToTab('requests')}
                   className="font-bold text-[#99004d] hover:underline cursor-pointer"
                 >
                   Track
@@ -425,7 +453,7 @@ export default function StudentDashboard() {
               <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
                 <span className="text-slate-500">Due Date: 15 Oct 2026</span>
                 <button
-                  onClick={() => setActiveTab('payments')}
+                  onClick={() => navigateToTab('payments')}
                   className="font-bold text-[#99004d] hover:underline cursor-pointer"
                 >
                   Pay Challan
@@ -483,7 +511,7 @@ export default function StudentDashboard() {
                 return (
                   <button
                     key={idx}
-                    onClick={() => setActiveTab(tile.id)}
+                    onClick={() => navigateToTab(tile.id)}
                     className="p-2.5 bg-white border border-[#D9DEE7] hover:border-[#99004d] hover:bg-[#FDF2F7]/50 rounded-[3px] text-left flex items-center justify-between group cursor-pointer transition shadow-2xs"
                   >
                     <div className="flex items-center space-x-2.5 min-w-0">
@@ -584,7 +612,7 @@ export default function StudentDashboard() {
               <div className="p-2.5 bg-[#F8FAFC] border-t border-[#D9DEE7] flex justify-between items-center text-[10px] text-slate-500">
                 <span>Faculty Advisor Consulting Hours: 04:00 PM - 05:00 PM</span>
                 <button
-                  onClick={() => setActiveTab('timetable')}
+                  onClick={() => navigateToTab('timetable')}
                   className="font-bold text-[#99004d] hover:underline cursor-pointer"
                 >
                   Weekly Timetable Matrix →
@@ -604,7 +632,7 @@ export default function StudentDashboard() {
                     </h3>
                   </div>
                   <button
-                    onClick={() => setActiveTab('notices')}
+                    onClick={() => navigateToTab('notices')}
                     className="text-[11px] font-bold text-[#99004d] hover:underline cursor-pointer"
                   >
                     Notice Board →
@@ -616,7 +644,7 @@ export default function StudentDashboard() {
                   {announcementsList.map((ann) => (
                     <div
                       key={ann.id}
-                      onClick={() => setActiveTab('notices')}
+                      onClick={() => navigateToTab('notices')}
                       className="p-2.5 hover:bg-slate-50 transition cursor-pointer"
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -650,7 +678,7 @@ export default function StudentDashboard() {
               {/* Bottom Archive Link */}
               <div className="p-2.5 bg-[#F8FAFC] border-t border-[#D9DEE7] text-center">
                 <button
-                  onClick={() => setActiveTab('notices')}
+                  onClick={() => navigateToTab('notices')}
                   className="text-[10px] font-bold text-[#99004d] hover:underline cursor-pointer"
                 >
                   View All 42 University Circulars in Central Archive →

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCampus } from '@/context/CampusContext';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -43,6 +44,9 @@ export default function FacultyDashboard() {
     timetable,
   } = useCampus();
 
+  const pathname = usePathname();
+  const router = useRouter();
+
   const [activeModule, setActiveModule] = useState<
     | 'dashboard'
     | 'classes'
@@ -55,6 +59,31 @@ export default function FacultyDashboard() {
     | 'requests'
     | 'timetable'
   >('dashboard');
+
+  useEffect(() => {
+    if (!pathname) return;
+    if (pathname.includes('/classes')) setActiveModule('classes');
+    else if (pathname.includes('/attendance')) setActiveModule('attendance');
+    else if (pathname.includes('/students')) setActiveModule('students');
+    else if (pathname.includes('/marks')) setActiveModule('marks');
+    else if (pathname.includes('/leave')) setActiveModule('leave');
+    else if (pathname.includes('/feedback')) setActiveModule('feedback');
+    else if (pathname.includes('/announcements')) setActiveModule('announcements');
+    else if (pathname.includes('/requests')) setActiveModule('requests');
+    else if (pathname.includes('/timetable')) setActiveModule('timetable');
+    else if (pathname === '/faculty/dashboard' || pathname === '/faculty' || pathname === '/faculty/') {
+      setActiveModule('dashboard');
+    }
+  }, [pathname]);
+
+  const switchModule = (mod: typeof activeModule) => {
+    setActiveModule(mod);
+    if (mod === 'dashboard') {
+      router.push('/faculty/dashboard');
+    } else {
+      router.push(`/faculty/${mod}`);
+    }
+  };
 
   // Attendance marking state (simulated roster)
   const [roster, setRoster] = useState([
@@ -196,8 +225,8 @@ export default function FacultyDashboard() {
         {/* Faculty Dashboard 4 Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 pt-3 border-t border-[#D9DEE7]">
           <button
-            onClick={() => setActiveModule('classes')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('classes')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#667085] uppercase block">
               Today&apos;s Classes
@@ -211,8 +240,8 @@ export default function FacultyDashboard() {
           </button>
 
           <button
-            onClick={() => setActiveModule('leave')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('leave')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#667085] uppercase block">
               Pending Leave Requests
@@ -226,8 +255,8 @@ export default function FacultyDashboard() {
           </button>
 
           <button
-            onClick={() => setActiveModule('requests')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('requests')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#667085] uppercase block">
               Pending Service Requests
@@ -241,8 +270,8 @@ export default function FacultyDashboard() {
           </button>
 
           <button
-            onClick={() => setActiveModule('announcements')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('announcements')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#667085] uppercase block">
               Announcements
@@ -262,80 +291,80 @@ export default function FacultyDashboard() {
       */}
       <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-[#D9DEE7] text-xs shadow-2xs">
         <button
-          onClick={() => setActiveModule('dashboard')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('dashboard')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'dashboard' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Overview
         </button>
         <button
-          onClick={() => setActiveModule('classes')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('classes')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'classes' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           My Classes
         </button>
         <button
-          onClick={() => setActiveModule('attendance')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('attendance')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'attendance' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Attendance
         </button>
         <button
-          onClick={() => setActiveModule('students')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('students')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'students' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Students
         </button>
         <button
-          onClick={() => setActiveModule('marks')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('marks')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'marks' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Marks
         </button>
         <button
-          onClick={() => setActiveModule('leave')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('leave')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'leave' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Leave Requests ({pendingLeaves.length})
         </button>
         <button
-          onClick={() => setActiveModule('feedback')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('feedback')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'feedback' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Course Feedback
         </button>
         <button
-          onClick={() => setActiveModule('announcements')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('announcements')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'announcements' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Announcements
         </button>
         <button
-          onClick={() => setActiveModule('requests')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('requests')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'requests' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Service Requests & Complaints
         </button>
         <button
-          onClick={() => setActiveModule('timetable')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('timetable')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'timetable' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
@@ -383,8 +412,8 @@ export default function FacultyDashboard() {
                       {cls.room}
                     </span>
                     <button
-                      onClick={() => setActiveModule('attendance')}
-                      className="px-2.5 py-1 bg-[#99004d] hover:bg-[#800040] text-white rounded text-[11px] font-semibold"
+                      onClick={() => switchModule('attendance')}
+                      className="px-2.5 py-1 bg-[#99004d] hover:bg-[#800040] text-white rounded text-[11px] font-semibold cursor-pointer"
                     >
                       Mark Attendance
                     </button>
@@ -429,14 +458,14 @@ export default function FacultyDashboard() {
 
               <div className="pt-2 flex gap-2">
                 <button
-                  onClick={() => setActiveModule('attendance')}
-                  className="flex-1 py-1.5 bg-[#99004d] hover:bg-[#800040] text-white rounded text-xs font-semibold text-center"
+                  onClick={() => switchModule('attendance')}
+                  className="flex-1 py-1.5 bg-[#99004d] hover:bg-[#800040] text-white rounded text-xs font-semibold text-center cursor-pointer"
                 >
                   Mark Attendance
                 </button>
                 <button
-                  onClick={() => setActiveModule('marks')}
-                  className="flex-1 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-semibold text-center"
+                  onClick={() => switchModule('marks')}
+                  className="flex-1 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-semibold text-center cursor-pointer"
                 >
                   Manage Marks
                 </button>
@@ -476,14 +505,14 @@ export default function FacultyDashboard() {
 
               <div className="pt-2 flex gap-2">
                 <button
-                  onClick={() => setActiveModule('attendance')}
-                  className="flex-1 py-1.5 bg-[#99004d] hover:bg-[#800040] text-white rounded text-xs font-semibold text-center"
+                  onClick={() => switchModule('attendance')}
+                  className="flex-1 py-1.5 bg-[#99004d] hover:bg-[#800040] text-white rounded text-xs font-semibold text-center cursor-pointer"
                 >
                   Mark Attendance
                 </button>
                 <button
-                  onClick={() => setActiveModule('marks')}
-                  className="flex-1 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-semibold text-center"
+                  onClick={() => switchModule('marks')}
+                  className="flex-1 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-xs font-semibold text-center cursor-pointer"
                 >
                   Grade Submissions
                 </button>

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCampus } from '@/context/CampusContext';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -39,6 +40,9 @@ export default function AdminDashboard() {
     events,
   } = useCampus();
 
+  const pathname = usePathname();
+  const router = useRouter();
+
   const [activeModule, setActiveModule] = useState<
     | 'dashboard'
     | 'students'
@@ -52,6 +56,28 @@ export default function AdminDashboard() {
     | 'announcements'
     | 'reports'
   >('complaints');
+
+  useEffect(() => {
+    if (!pathname) return;
+    if (pathname.includes('/students')) setActiveModule('students');
+    else if (pathname.includes('/faculty')) setActiveModule('faculty');
+    else if (pathname.includes('/departments')) setActiveModule('departments');
+    else if (pathname.includes('/certificates')) setActiveModule('certificates');
+    else if (pathname.includes('/payments') || pathname.includes('/finance')) setActiveModule('payments');
+    else if (pathname.includes('/events')) setActiveModule('events');
+    else if (pathname.includes('/announcements')) setActiveModule('announcements');
+    else if (pathname.includes('/reports')) setActiveModule('reports');
+    else if (pathname.includes('/complaints') || pathname.includes('/requests') || pathname.includes('/services')) setActiveModule('complaints');
+    else if (pathname === '/admin/dashboard' || pathname === '/admin' || pathname === '/admin/') {
+      setActiveModule('complaints');
+    }
+  }, [pathname]);
+
+  const switchModule = (mod: typeof activeModule) => {
+    setActiveModule(mod);
+    const targetRoute = mod === 'complaints' || mod === 'dashboard' ? 'dashboard' : mod;
+    router.push(`/admin/${targetRoute}`);
+  };
 
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
 
@@ -143,8 +169,8 @@ export default function AdminDashboard() {
         */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 pt-3 border-t border-[#D9DEE7]">
           <button
-            onClick={() => setActiveModule('students')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('students')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#667085] uppercase block">
               Total Students
@@ -156,8 +182,8 @@ export default function AdminDashboard() {
           </button>
 
           <button
-            onClick={() => setActiveModule('faculty')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('faculty')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#667085] uppercase block">
               Faculty
@@ -169,8 +195,8 @@ export default function AdminDashboard() {
           </button>
 
           <button
-            onClick={() => setActiveModule('services')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('complaints')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#C98518] uppercase block">
               Pending Requests
@@ -184,8 +210,8 @@ export default function AdminDashboard() {
           </button>
 
           <button
-            onClick={() => setActiveModule('complaints')}
-            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs"
+            onClick={() => switchModule('complaints')}
+            className="p-3 bg-white hover:bg-[#FDF2F7]/50 hover:border-[#B0004B]/60 border border-[#D9DEE7] rounded-md text-left transition group shadow-2xs cursor-pointer"
           >
             <span className="text-[10px] font-semibold text-[#C94B4B] uppercase block">
               Open Complaints
@@ -218,72 +244,72 @@ export default function AdminDashboard() {
       */}
       <div className="flex flex-wrap items-center gap-1.5 bg-white p-2 rounded-md border border-[#D9DEE7] text-xs shadow-2xs">
         <button
-          onClick={() => setActiveModule('complaints')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('complaints')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'complaints' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Complaints & Requests ({complaints.length})
         </button>
         <button
-          onClick={() => setActiveModule('students')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('students')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'students' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Students
         </button>
         <button
-          onClick={() => setActiveModule('faculty')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('faculty')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'faculty' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Faculty
         </button>
         <button
-          onClick={() => setActiveModule('departments')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('departments')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'departments' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Departments
         </button>
         <button
-          onClick={() => setActiveModule('certificates')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('certificates')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'certificates' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Certificates ({certificates.length})
         </button>
         <button
-          onClick={() => setActiveModule('payments')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('payments')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'payments' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Payments
         </button>
         <button
-          onClick={() => setActiveModule('events')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('events')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'events' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Events
         </button>
         <button
-          onClick={() => setActiveModule('announcements')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('announcements')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'announcements' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
           Announcements
         </button>
         <button
-          onClick={() => setActiveModule('reports')}
-          className={`px-3 py-1.5 rounded-md font-semibold transition ${
+          onClick={() => switchModule('reports')}
+          className={`px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
             activeModule === 'reports' ? 'bg-[#B0004B] text-white shadow-2xs' : 'text-[#182033] hover:bg-[#F3F5F7]'
           }`}
         >
